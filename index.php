@@ -1,3 +1,68 @@
+<?php
+
+	$msg = "";
+	$msgClass = "";
+
+
+	if(filter_has_var(INPUT_POST,'submit')){
+
+
+	    $email = htmlspecialchars($_POST['email']);
+	    $name = htmlspecialchars($_POST['name']);
+	    $message = htmlspecialchars($_POST['message']);
+
+
+	    if(!empty($email) && !empty($name) && !empty($message)){
+
+
+	        if(filter_var($email,FILTER_VALIDATE_EMAIL)===false){
+
+	            $msg = 'Please use a valid email';
+	            $msgClass = 'alert-danger';
+
+	        } else {
+
+	            $toEmail = 'mail@mail.com';
+	            $subject = 'Contact request from '.$name;
+	            $body = '<h2>Contact Request</h2
+	                       <h4>Name</h4><p>'.$name.'</p>
+	                       <h4>Email</h4><p>'.$email.'</p>
+	                       <h4>Message</h4><p>'.$message.'</p>
+	                      ';
+
+
+	            $headers = "MIME-Version: 1.0" ."\r\n";
+	            $headers .="Contentt-Type:text/html;charset=UTF-8" . "
+	            \r\n";
+
+
+	            $headers .= "From: " .$name. "<".$email.">". "\r\n";
+
+	            if(mail($toEmail, $subject, $body, $headers)){
+
+	                 $msg = 'Your email has been sent!';
+	                 $msgClass = 'alert-success';
+
+	            } else {
+	                 $msg = 'Your email was not sent';
+	                 $msgClass = 'alert-danger';
+	            }
+
+	        }
+
+	    } else {
+
+	        $msg = 'Please fil in all fields';
+	        $msgClass = 'alert-danger';
+
+	    }
+
+	}
+
+
+?>
+
+
 <!doctype html>
 <html>
 <head>
@@ -153,18 +218,21 @@
               <p>Feel free to contact us by filling the contact form or visiting our social network sites like Fackebook</p>
               <div class="row">
                 <div class="col-lg-12">
-                  <form action="mail_handler.php" method="post" name="form" class="form-horizontal">
+									<?php if($msg != ''): ?>
+                 <div class="alert <?php echo $msgClass; ?>"><?php echo $msg; ?></div>
+                  <?php endif; ?>
+                  <form action="<?php echo $_SERVER['PHP_SELF']; ?>" method="post" name="form" class="form-horizontal">
                     <div class="form-group">
                       <label for="exampleInputName2">Name</label>
-                      <input type="text" name="name" class="form-control" id="exampleInputName2" placeholder="Name">
+                      <input type="text" name="name" class="form-control" id="exampleInputName2" placeholder="Name" value="<?php echo isset($_POST['name']) ? $name : ''; ?>">
                     </div>
                     <div class="form-group">
                       <label for="email">Email</label>
-                      <input type="email" name="email" class="form-control" id="exampleInputEmail2" placeholder="email.doe@example.com">
+                      <input type="email" name="email" class="form-control" id="exampleInputEmail2" placeholder="email.doe@example.com" "<?php echo isset($_POST['email']) ? $email : ''; ?>">
                     </div>
                     <div class="form-group ">
                       <label for="message">Your Message</label>
-                     <textarea  name="msg" class="form-control" placeholder="Description"></textarea>
+                     <textarea  name="message" class="form-control" placeholder="Description"><?php echo isset($_POST['message']) ? $message : ''; ?></textarea>
                     </div>
                     <button type="submit" name="submit" class="btn btn-default">Send Message</button>
                   </form>
